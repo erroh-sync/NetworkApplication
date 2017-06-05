@@ -1,0 +1,8 @@
+﻿  main.cpp
+e:\visualstudio\networkingtest\networkingtest\main.cpp(25): error C2371: 'server_address': redefinition; different basic types
+  e:\visualstudio\networkingtest\networkingtest\main.cpp(17): note: see declaration of 'server_address'
+e:\visualstudio\networkingtest\networkingtest\main.cpp(27): error C2446: '==': no conversion from 'int' to 'sockaddr_in'
+  e:\visualstudio\networkingtest\networkingtest\main.cpp(27): note: No constructor could take the source type, or constructor overload resolution was ambiguous
+e:\visualstudio\networkingtest\networkingtest\main.cpp(31): error C2065: 'cout': undeclared identifier
+e:\visualstudio\networkingtest\networkingtest\main.cpp(33): error C2561: 'main': function must return a value
+  e:\visualstudio\networkingtest\networkingtest\main.cpp(6): note: see declaration of 'main'
