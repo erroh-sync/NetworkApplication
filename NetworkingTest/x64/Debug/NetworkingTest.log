@@ -1,0 +1,7 @@
+﻿  main.cpp
+c:\users\dwood32\documents\networkapplication\networkingtest\main.cpp(151): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+c:\users\dwood32\documents\networkapplication\networkingtest\main.cpp(153): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\dwood32\documents\networkapplication\networkingtest\main.cpp(154): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\dwood32\documents\networkapplication\networkingtest\main.cpp(155): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+  NetworkingTest.vcxproj -> C:\Users\dwood32\Documents\NetworkApplication\x64\Debug\NetworkingTest.exe
+  NetworkingTest.vcxproj -> C:\Users\dwood32\Documents\NetworkApplication\x64\Debug\NetworkingTest.pdb (Partial PDB)
