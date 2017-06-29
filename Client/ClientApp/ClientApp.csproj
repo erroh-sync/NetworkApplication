@@ -80,6 +80,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\CameraController.cs" />
     <Compile Include="Assets\Scripts\CharacterInterface.cs" />
+    <Compile Include="Assets\Scripts\Memblock.cs" />
     <Compile Include="Assets\Scripts\NetworkHandle.cs" />
     <Compile Include="Assets\Scripts\PlayerController.cs" />
     <Compile Include="Assets\Scripts\RemotePlayerController.cs" />
