@@ -1,12 +1,8 @@
-﻿/*
- * Major props to Greg for leting me use this!
- */
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+//using System.Threading.Tasks;
 
 namespace kf
 {
@@ -105,10 +101,10 @@ namespace kf
         }
         public double getDouble()
         {
-            if (index <= data.Length - 4)
+            if (index <= data.Length - 8)
             {
                 double value = BitConverter.ToDouble(data, index);
-                index += 4;
+                index += 8;
                 return value;
             }
             return 0;

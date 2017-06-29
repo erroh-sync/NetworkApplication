@@ -9,26 +9,26 @@ using UnityEngine;
 public class NetworkHandle : MonoBehaviour {
 
     [SerializeField]
-    // TEMP: SHOULD BE READ FROM A DATA SHEET
-    private const int listenPort = 1305;
+    private int sendPort = 1304;
+    [SerializeField]
+    private int listenPort = 1305;
 
     [SerializeField]
-    // TEMP: SHOULD BE READ FROM A DATA SHEET
-    private const int RefreshRate = 20;
+    private int RefreshRate = 5;
 
-    private int RefreshTimer = RefreshRate;
+    private int RefreshTimer;
 
     private PlayerController pc;
     private RemotePlayerController rpc;
 
-    public struct GamePacket
+    private void Start()
     {
-        int rotation; // 0 to 360
-        private Vector3 position; // Position
+        RefreshTimer = RefreshRate;
     }
 
     void Update()
     {
+        Debug.Log(RefreshTimer);
         RefreshTimer -= 1;
         if(RefreshTimer <= 0)
         {
@@ -41,6 +41,8 @@ public class NetworkHandle : MonoBehaviour {
                 RetrievePacket();
             else
                 rpc = FindObjectOfType<RemotePlayerController>();
+
+            RefreshTimer = RefreshRate;
         }
     }
 
@@ -55,14 +57,20 @@ public class NetworkHandle : MonoBehaviour {
         IPAddress send_to_address = IPAddress.Parse("10.40.60.249");
 
         // Create a target to send to
-        IPEndPoint sending_end_point = new IPEndPoint(send_to_address, listenPort);
-
-        //TODO: FORM PACKET HERE
-        string text_to_send = "Bepis bepis in my conke";
+        IPEndPoint sending_end_point = new IPEndPoint(send_to_address, sendPort);
 
         // the socket object must have an array of bytes to send.
         // this loads the string entered by the user into an array of bytes.
-        byte[] send_buffer = Encoding.ASCII.GetBytes(text_to_send); // TODO: Send packet using Greg's stuff-to-byte thing
+        byte[] send_buffer = new byte[64];
+        kf.MemBlock mb = new kf.MemBlock(send_buffer);
+
+        // Store Position
+        mb.setFloat(pc.gameObject.transform.position.x);
+        mb.setFloat(pc.gameObject.transform.position.y);
+        mb.setFloat(pc.gameObject.transform.position.z);
+
+        // Store Rotation
+        mb.setFloat(pc.Chara.gameObject.transform.eulerAngles.y);
 
         // Remind the user of where this is going.
         Debug.Log ("sending to address: {0} port: {1}" + sending_end_point.Address.ToString() + sending_end_point.Port.ToString());
@@ -90,7 +98,6 @@ public class NetworkHandle : MonoBehaviour {
     {
         UdpClient listener = new UdpClient(listenPort);
         IPEndPoint groupEP = new IPEndPoint(IPAddress.Any, listenPort);
-        string received_data;
         byte[] receive_byte_array;
         try
         {
@@ -100,8 +107,19 @@ public class NetworkHandle : MonoBehaviour {
             {
                 receive_byte_array = listener.Receive(ref groupEP);
                 Debug.Log("Received a broadcast from {0}" + groupEP.ToString());
-                received_data = Encoding.ASCII.GetString(receive_byte_array, 0, receive_byte_array.Length);
-                Debug.Log("data follows {0}" + received_data);
+
+                // the socket object must have an array of bytes to send.
+                // this loads the string entered by the user into an array of bytes.
+                kf.MemBlock mb = new kf.MemBlock(receive_byte_array);
+
+                // Set Position
+                Vector3 NewPos = new Vector3(mb.getFloat(), mb.getFloat(), mb.getFloat());
+
+                rpc.gameObject.transform.position = NewPos;
+
+                // Set Rotation
+                Vector3 NewRot = new Vector3(0.0f, mb.getFloat(), 0.0f);
+                rpc.gameObject.transform.eulerAngles = NewRot;
             }
         }
         catch (Exception e)

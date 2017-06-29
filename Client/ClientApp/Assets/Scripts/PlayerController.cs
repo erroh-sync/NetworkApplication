@@ -29,9 +29,8 @@ public class PlayerController : MonoBehaviour {
 
     #region External Reference Variables
     [Header("External References")]
-    [SerializeField]
     [Tooltip("Character Controller Reference")]
-    private CharacterInterface Chara;
+    public CharacterInterface Chara;
     #endregion
 
     // Use this for initialization
