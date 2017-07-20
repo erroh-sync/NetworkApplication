@@ -9,41 +9,27 @@ using UnityEngine;
 public class NetworkHandle : MonoBehaviour {
 
     [SerializeField]
-    private int sendPort = 1304;
-    [SerializeField]
-    private int listenPort = 1305;
-
-    [SerializeField]
-    private int RefreshRate = 5;
-
-    private int RefreshTimer;
+    private int sendrecPort = 1304;
 
     private PlayerController pc;
-    private RemotePlayerController rpc;
+    private List<RemotePlayerController> rpc = new List<RemotePlayerController>();
+
+    [SerializeField]
+    private GameObject RemoteDummy;
 
     private void Start()
     {
-        RefreshTimer = RefreshRate;
+
     }
 
     void Update()
     {
-        Debug.Log(RefreshTimer);
-        RefreshTimer -= 1;
-        if(RefreshTimer <= 0)
-        {
-            if (pc)
-                TransmitPacket();
-            else
-                pc = FindObjectOfType<PlayerController>();
+        if (pc)
+            TransmitPacket();
+        else
+            pc = FindObjectOfType<PlayerController>();
 
-            if (rpc)
-                RetrievePacket();
-            else
-                rpc = FindObjectOfType<RemotePlayerController>();
-
-            RefreshTimer = RefreshRate;
-        }
+        RetrievePacket();
     }
 
     void TransmitPacket()
@@ -57,7 +43,7 @@ public class NetworkHandle : MonoBehaviour {
         IPAddress send_to_address = IPAddress.Parse("10.40.60.249");
 
         // Create a target to send to
-        IPEndPoint sending_end_point = new IPEndPoint(send_to_address, sendPort);
+        IPEndPoint sending_end_point = new IPEndPoint(send_to_address, sendrecPort);
 
         // the socket object must have an array of bytes to send.
         // this loads the string entered by the user into an array of bytes.
@@ -73,7 +59,7 @@ public class NetworkHandle : MonoBehaviour {
         mb.setFloat(pc.Chara.gameObject.transform.eulerAngles.y);
 
         // Remind the user of where this is going.
-        Debug.Log ("sending to address: {0} port: {1}" + sending_end_point.Address.ToString() + sending_end_point.Port.ToString());
+        //Debug.Log ("sending to address: {0} port: {1}" + sending_end_point.Address.ToString() + sending_end_point.Port.ToString());
         try
         {
             sending_socket.SendTo(send_buffer, sending_end_point);
@@ -81,45 +67,64 @@ public class NetworkHandle : MonoBehaviour {
         catch (Exception send_exception)
         {
             exception_thrown = true;
-            Debug.Log(" Exception {0}" + send_exception.Message);
+            //Debug.Log(" Exception {0}" + send_exception.Message);
         }
         if (exception_thrown == false)
         {
-            Debug.Log("Message has been sent to the broadcast address");
+            //Debug.Log("Message has been sent to the broadcast address");
         }
         else
         {
             exception_thrown = false;
-            Console.WriteLine("The exception indicates the message was not sent.");
+            //Console.WriteLine("The exception indicates the message was not sent.");
         }
     }
 
     void RetrievePacket()
     {
-        UdpClient listener = new UdpClient(listenPort);
-        IPEndPoint groupEP = new IPEndPoint(IPAddress.Any, listenPort);
+        UdpClient listener = new UdpClient(sendrecPort);
+        IPEndPoint groupEP = new IPEndPoint(IPAddress.Any, sendrecPort);
         byte[] receive_byte_array;
         try
         {
-            Debug.Log("Waiting for broadcast");
+            //Debug.Log("Waiting for broadcast");
 
             if (listener.Available > 0)
             {
                 receive_byte_array = listener.Receive(ref groupEP);
                 Debug.Log("Received a broadcast from {0}" + groupEP.ToString());
 
+                RemotePlayerController targ = null;
+
+                foreach (RemotePlayerController r in rpc)
+                {
+                    if (r.RemoteAddress == groupEP.ToString())
+                    {
+                        targ = r;
+                        break;
+                    }
+                }
+
+                if (targ == null)
+                {
+                    targ = Instantiate(RemoteDummy, new Vector3(0,0,0), Quaternion.identity).GetComponent<RemotePlayerController>();
+                    targ.RemoteAddress = groupEP.ToString();
+                    rpc.Add(targ);
+                }
+
                 // the socket object must have an array of bytes to send.
                 // this loads the string entered by the user into an array of bytes.
                 kf.MemBlock mb = new kf.MemBlock(receive_byte_array);
-
+                
                 // Set Position
                 Vector3 NewPos = new Vector3(mb.getFloat(), mb.getFloat(), mb.getFloat());
 
-                rpc.gameObject.transform.position = NewPos;
+                targ.gameObject.transform.position = NewPos;
 
                 // Set Rotation
                 Vector3 NewRot = new Vector3(0.0f, mb.getFloat(), 0.0f);
-                rpc.gameObject.transform.eulerAngles = NewRot;
+                targ.gameObject.transform.eulerAngles = NewRot;
+                
             }
         }
         catch (Exception e)

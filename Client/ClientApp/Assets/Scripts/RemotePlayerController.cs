@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class RemotePlayerController : MonoBehaviour {
 
+    public string RemoteAddress = "";
+
 	// Use this for initialization
 	void Start () {
 		
